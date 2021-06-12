@@ -3,7 +3,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sktime.classification.compose import ColumnEnsembleClassifier
 from sktime.classification.interval_based import TimeSeriesForestClassifier
 from stickleback.stickleback import Stickleback
-from stickleback.util import split_dict
+from stickleback.util import align_events, split_dict
 from stickleback.visualize import outcome_table
 import sys
 
@@ -17,12 +17,13 @@ sensors, events = pd.read_pickle(datapath)
 for deployid, _events in events.items():
     t1 = sensors[deployid].index[int(win_size / 2)]
     t2 = sensors[deployid].index[int(-win_size / 2)]
-    events[deployid] = _events[_events.to_series().between(t1, t2)]
+    events[deployid] = pd.DatetimeIndex(events[deployid][events[deployid].between(t1, t2)])
+events = align_events(events, sensors)
   
 ## Initialize Stickleback
 cols = sensors[list(sensors)[0]].columns
 tsf = ColumnEnsembleClassifier(
-    estimators=[("TSF_" + c, TimeSeriesForestClassifier(n_estimators=n_trees, n_jobs=-1), [i]) 
+    estimators=[("TSF_" + c, TimeSeriesForestClassifier(n_estimators=n_trees, n_jobs=2), [i]) 
                 for i, c in enumerate(cols)]
 )
 knn = KNeighborsClassifier(3)
@@ -53,4 +54,4 @@ print("done")
 event_outcomes = sb.assess(event_pred, events_test)
 
 ## Print result
-print(outcome_table)
+print(outcome_table(event_outcomes))
