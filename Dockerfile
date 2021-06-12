@@ -6,7 +6,6 @@ WORKDIR stickleback/
 
 # Install stickleback, data, and harness
 RUN pip3 install git+git://github.com/FlukeAndFeather/stickleback.git
-COPY lunges_subset.pkl lunges_subset.pkl
-COPY stickleback_test.py stickleback_test.py
+COPY . .
 
-CMD [ "python3", "stickleback_test.py", "lunges_subset.pkl", "32", "4" ]
+CMD [ "python3", "stickleback_test.py", "breaths.pkl", "32", "4" ]
