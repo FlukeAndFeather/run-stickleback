@@ -14,11 +14,10 @@ n_trees = int(sys.argv[3])
 
 ## Load data
 sensors, events = pd.read_pickle(datapath)
-for deployid, _events in events.items():
+for deployid in events:
     t1 = sensors[deployid].index[int(win_size / 2)]
     t2 = sensors[deployid].index[int(-win_size / 2)]
-    events[deployid] = pd.DatetimeIndex(events[deployid][events[deployid].between(t1, t2)])
-events = align_events(events, sensors)
+    events[deployid] = events[deployid][events[deployid].to_series().between(t1, t2)]
   
 ## Initialize Stickleback
 cols = sensors[list(sensors)[0]].columns
@@ -32,7 +31,7 @@ sb = Stickleback(
     global_clf=knn,
     win_size=win_size,
     tol=pd.Timedelta("5s"),
-    nth=5
+    nth=10
 )
 
 ## Split test-train data
