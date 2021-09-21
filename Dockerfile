@@ -7,3 +7,5 @@ WORKDIR /stickleback/
 # Install stickleback, data, and harness
 RUN pip3 install git+git://github.com/FlukeAndFeather/stickleback.git
 COPY . .
+
+CMD bash
