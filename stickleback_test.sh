@@ -1,17 +1,20 @@
 #!/bin/bash
 #
-#SBATCH --job-name=batch_cv_all
+#SBATCH --job-name=stickleback_test
 #
-#SBATCH --time=24:00:00
+#SBATCH --time=0:20:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem-per-cpu=6G
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=1G
+#SBATCH --mail-type=ALL
 
 SIF=$GROUP_HOME/$USER/sing/sb-test_latest.sif
-SCRIPT=$HOME/stickleback_test.py
-DATA=$GROUP_SCRATCH/lunges.pkl 
-WINDOW=64
-FOLDS=4
-TREES=8
+SCRIPT=$SCRATCH/stickleback/stickleback_test.py
+DATA=$SCRATCH/stickleback/bw_breaths_sensors_events.pkl
+WINDOW=100
+FOLDS=5
+TREES=120
 
-srun singularity exec $SIF python3 $SCRIPT $DATA $WINDOW $FOLDS $TREES
+ml python/3.9
+pip install --user --upgrade --force-reinstall git+git://github.com/FlukeAndFeather/stickleback.git
+python3 $SCRIPT $DATA $WINDOW $FOLDS $TREES $SLURM_NTASKS_PER_NODE
