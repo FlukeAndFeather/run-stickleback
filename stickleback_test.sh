@@ -2,18 +2,27 @@
 #
 #SBATCH --job-name=stickleback_test
 #
-#SBATCH --time=0:08:00
+#SBATCH --time=16:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem-per-cpu=8G
+#SBATCH --cpus-per-task=32
+#SBATCH --mem-per-cpu=6G
 #SBATCH --mail-type=ALL
 
 SIF=$GROUP_HOME/$USER/sing/sb-test_latest.sif
-SCRIPT=/stickleback/stickleback_test.py
+SCRIPT=stickleback_test.py
 DATA=$SCRATCH/stickleback/bw_breaths_sensors_events.pkl
 WINDOW=50
 FOLDS=2
-TREES=16
-NUMBA_CACHE=$SCRATCH/.numba_cache
+TREES=64
 
-singularity exec --env NUMBA_CACHE_DIR=$NUMBA_CACHE $SIF python3 $SCRIPT $DATA $WINDOW $FOLDS $TREES $SLURM_NTASKS_PER_NODE
+ml python/3.9
+cd $HOME/repos/run-stickleback
+echo WINDOW=$WINDOW FOLDS=$FOLDS TREES=$TREES
+python3 $SCRIPT $DATA $WINDOW $FOLDS $TREES $SLURM_CPUS_PER_TASK
+
+# Verify writable directories exist
+# mkdir -p $SCRATCH/.numba_cache
+# MPLCONFIGDIR=$SCRATCH/.mplconfig
+
+# singularity exec --env-file stickleback_env $SIF python3 $SCRIPT $DATA $WINDOW $FOLDS $TREES $SLURM_CPUS_PER_TASK
+

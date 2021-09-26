@@ -1,0 +1,2 @@
+NUMBA_CACHE_DIR=$SCRATCH/.numba_cache
+MPLCONFIGDIR=$SCRATCH/.mplconfig
