@@ -25,13 +25,6 @@ os.mkdir(outdir)
 
 ## Load data
 sensors, events = pd.read_pickle(datapath)
-for deployid in events:
-    t1 = sensors[deployid].index[int(win_size / 2)]
-    t2 = sensors[deployid].index[int(-win_size / 2)]
-    events[deployid] = events[deployid][events[deployid].to_series().between(t1, t2)]
-events = align_events(events, sensors)
-for d in sensors:
-    sensors[d] = sensors[d].interpolate().fillna(method="backfill")
 
 ## TEST ONLY
 ## Subset deployments and keep only the first few hours of each
@@ -46,6 +39,15 @@ for k in keep:
         raise RuntimeError("no events in first {} hours of {}".format(max_hours, k))
 sensors = sensors2
 events = events2
+
+# Remove events near boundaries
+for deployid in events:
+    t1 = sensors[deployid].index[int(win_size / 2)]
+    t2 = sensors[deployid].index[int(-win_size / 2)]
+    events[deployid] = events[deployid][events[deployid].to_series().between(t1, t2)]
+events = align_events(events, sensors)
+for d in sensors:
+    sensors[d] = sensors[d].interpolate().fillna(method="backfill")
 
 ## Apply mask based on depth threshold
 max_depth = 20 # m
