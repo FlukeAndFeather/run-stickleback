@@ -12,12 +12,15 @@ from stickleback.util import align_events
 from stickleback.visualize import outcome_table
 import sys
 
+from pdb import set_trace
+
 ## Read args
 datapath = sys.argv[1]
 win_size = int(sys.argv[2])
 n_folds = int(sys.argv[3])
-n_est = int(sys.argv[4])
-n_cores = int(sys.argv[5])
+n_kerns = int(sys.argv[4])
+n_est = int(sys.argv[5])
+n_cores = int(sys.argv[6])
 
 ## Create output directory
 outdir = os.path.join(os.path.dirname(datapath), datetime.now().strftime("run-stickleback-%Y%m%d%H%M%S"))
@@ -56,6 +59,7 @@ depth_mask = {k: is_shallow(v["depth"]) for k, v in sensors.items()}
   
 ## Initialize Stickleback
 cif = CanonicalIntervalForest(n_est)
+ars = Arsenal(num_kernels=n_kerns, n_estimators=n_est, time_limit_in_minutes=15.0, n_jobs=n_cores)
 # cols = sensors[list(sensors)[0]].columns
 # ars = ColumnEnsembleClassifier(
 #     estimators=[("ARS_" + c, Arsenal(num_kernels=n_kerns, n_estimators=n_est, time_limit_in_minutes=60.0, n_jobs=n_cores), [i]) 
@@ -63,7 +67,7 @@ cif = CanonicalIntervalForest(n_est)
 # )
 # lgt = LogisticRegression(class_weight="balanced")
 sb = Stickleback(
-    local_clf=cif,
+    local_clf=ars,
     win_size=win_size,
     tol=pd.Timedelta("3s"),
     nth=5,
@@ -89,7 +93,7 @@ for train_idx, test_idx in kf.split(deployids):
     ## Fit to training data
     fit_start = datetime.now()
     print("fitting (start at {})...".format(fit_start.strftime("%Y-%m-%d %H:%M:%S")))
-    sb.fit(sensors_train, events_train, mask=depth_mask)
+    sb.fit(sensors_train, events_train, mask=depth_mask, max_events=1000)
     fit_finish = datetime.now()
     print("fitting done at {}".format(fit_finish.strftime("%Y-%m-%d %H:%M:%S")))
 
