@@ -20,7 +20,8 @@ win_size = int(sys.argv[2])
 n_folds = int(sys.argv[3])
 n_kerns = int(sys.argv[4])
 n_est = int(sys.argv[5])
-n_cores = int(sys.argv[6])
+n_min = float(sys.argv[6])
+n_cores = int(sys.argv[7])
 
 ## Create output directory
 outdir = os.path.join(os.path.dirname(datapath), datetime.now().strftime("run-stickleback-%Y%m%d%H%M%S"))
@@ -59,7 +60,7 @@ depth_mask = {k: is_shallow(v["depth"]) for k, v in sensors.items()}
   
 ## Initialize Stickleback
 cif = CanonicalIntervalForest(n_est)
-ars = Arsenal(num_kernels=n_kerns, n_estimators=n_est, time_limit_in_minutes=15.0, n_jobs=n_cores)
+ars = Arsenal(num_kernels=n_kerns, n_estimators=n_est, time_limit_in_minutes=n_min, n_jobs=n_cores)
 # cols = sensors[list(sensors)[0]].columns
 # ars = ColumnEnsembleClassifier(
 #     estimators=[("ARS_" + c, Arsenal(num_kernels=n_kerns, n_estimators=n_est, time_limit_in_minutes=60.0, n_jobs=n_cores), [i]) 
